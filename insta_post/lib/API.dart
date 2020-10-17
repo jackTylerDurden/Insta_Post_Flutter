@@ -31,4 +31,19 @@ class API {
     print('resonse------>>>' + responseTemp.body.toString());
     return null;
   }
+
+  static Future<http.Response> getHashTags(startIndex, endIndex) async {
+    var url = baseUrl +
+        "instapost-query/hashtags-batch?start-index=" +
+        startIndex.toString() +
+        "&end-index=" +
+        endIndex.toString();
+    print('url----->>' + url);
+    return await http.get(url);
+  }
+
+  static Future<http.Response> getNickNames() async {
+    var url = baseUrl + "instapost-query/nicknames";
+    return await http.get(url);
+  }
 }

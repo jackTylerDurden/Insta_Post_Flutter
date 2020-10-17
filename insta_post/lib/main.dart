@@ -4,24 +4,21 @@ import 'package:flutter/material.dart';
 import 'HttpOverride.dart';
 import 'UserRegistration.dart';
 import 'login.dart';
-
-/*void main() {
-  // HttpOverrides.global = new HttpOverride();
-  runApp(MaterialApp(
-    home: MyApp(),
-  ));
-}*/
+import 'HashTags.dart';
+import 'Nicknames.dart';
 
 void main() {
   HttpOverrides.global = new HttpOverride();
   runApp(MaterialApp(
     title: 'Named Routes Demo',
-    initialRoute: '/',
+    initialRoute: '/hashtags',
     routes: {
       // When navigating to the "/" route, build the FirstScreen widget.
       '/': (context) => Login(),
       // When navigating to the "/second" route, build the SecondScreen widget.
-      '/userReg': (context) => UserRegistration(),
+      '/userreg': (context) => UserRegistration(),
+      '/hashtags': (context) => HashTags(),
+      '/nicknames': (context) => Nicknames()
     },
   ));
 }

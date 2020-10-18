@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:url_encoder/url_encoder.dart';
 
 const baseUrl = 'https://bismarck.sdsu.edu/api/';
 // const HttpClient httpClient;
@@ -14,14 +15,13 @@ class API {
         email +
         "&password=" +
         password;
+    url = urlEncode(text: url);
     return await http.get(url);
   }
 
   static Future<http.Response> createNewUser(user) async {
-    print('email----->>>' + user.toString());
     var url = baseUrl + "instapost-upload/newuser";
     var body = jsonEncode(user);
-    print("body------->>>" + body.toString());
     http.Response responseTemp = await http.post(url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -38,12 +38,42 @@ class API {
         startIndex.toString() +
         "&end-index=" +
         endIndex.toString();
-    print('url----->>' + url);
+    url = urlEncode(text: url);
     return await http.get(url);
   }
 
   static Future<http.Response> getNickNames() async {
     var url = baseUrl + "instapost-query/nicknames";
+    url = urlEncode(text: url);
     return await http.get(url);
+  }
+
+  static Future<http.Response> getPostIdsFromHashtag(hashtag) async {
+    // hashtag = encode(hashtag);
+    var url = baseUrl + "instapost-query/hashtags-post-ids?hashtag=" + hashtag;
+    url = urlEncode(text: url);
+    return await http.get(url);
+  }
+
+  static Future<http.Response> getPost(postId) async {
+    var url = baseUrl + 'instapost-query/post?post-id=' + postId.toString();
+    url = urlEncode(text: url);
+    return await http.get(url);
+  }
+
+  static Future<http.Response> getImage(imageId) async {
+    var url = baseUrl + 'instapost-query/image?id=' + imageId.toString();
+    url = urlEncode(text: url);
+    return await http.get(url);
+  }
+
+  static Future<http.Response> addComment(post) async {
+    var url = baseUrl + "instapost-upload/comment";
+    var body = jsonEncode(post);
+    return await http.post(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(body));
   }
 }

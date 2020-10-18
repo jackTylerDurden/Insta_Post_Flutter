@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'API.dart';
+import 'PostViewOption.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -13,12 +14,19 @@ class Login extends StatefulWidget {
 class _State extends State<Login> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  String email;
+  String password;
   final errorMessage = 'Please enter some value';
   final _formKey = GlobalKey<FormState>();
-  void showAlert(message) {
+  void showAlertAndRedirect(message, success) {
     showDialog(
         context: context,
         builder: (context) {
+          if (!success) {
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.of(context).pop(true);
+            });
+          }
           return AlertDialog(
             title: Text(message),
           );
@@ -33,15 +41,24 @@ class _State extends State<Login> {
   }
 
   Future authenticateUser() {
-    var email = _emailController.text.trim();
-    var password = _passwordController.text.trim();
+    this.email = _emailController.text.trim();
+    this.password = _passwordController.text.trim();
     API.authenticateUser(email, password).then((response) {
       if (response.statusCode == 200) {
         Map<String, dynamic> resultMap = json.decode(response.body);
         if (resultMap['result'] == true) {
-          showAlert('Login Successful!');
+          showAlertAndRedirect('Login Successful!', true);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PostViewOption(
+                  email: this.email,
+                  password: this.password,
+                ),
+              ));
         } else {
-          showAlert('Login Successful. Incorrect email or password');
+          showAlertAndRedirect(
+              'Login Successful. Incorrect email or password', false);
         }
       }
     });
@@ -49,7 +66,6 @@ class _State extends State<Login> {
   }
 
   String validateValues(value) {
-    print('value------->>>' + value.toString());
     if (value.isEmpty) {
       return errorMessage;
     }

@@ -6,11 +6,13 @@ import 'package:flutter_tags/flutter_tags.dart';
 import 'API.dart';
 
 class Nicknames extends StatefulWidget {
-  Nicknames({Key key, this.title}) : super(key: key);
-  final String title;
+  final String email;
+  final String password;
+  Nicknames({Key key, @required this.email, @required this.password})
+      : super(key: key);
 
   @override
-  _State createState() => _State();
+  _State createState() => _State(email, password);
 }
 
 class _State extends State<Nicknames> with SingleTickerProviderStateMixin {
@@ -23,6 +25,9 @@ class _State extends State<Nicknames> with SingleTickerProviderStateMixin {
   int _count = 0;
   int _column = 0;
   double _fontSize = 14;
+  String email;
+  String password;
+  _State(this.email, this.password);
 
   String _itemCombine = 'withTextBefore';
 

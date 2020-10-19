@@ -51,8 +51,8 @@ class _State extends State<PostView> {
       this.password);
   TextEditingController _commentController = TextEditingController();
   TextEditingController _ratingController = TextEditingController();
-  final errorMessage = 'Please enter some value';
   final _formKey = GlobalKey<FormState>();
+  final errorMessage = 'Please enter some value';
   void showAlert(message) {
     showDialog(
         context: context,
@@ -223,31 +223,33 @@ class _State extends State<PostView> {
   }
 
   submitRating() {
-    final int rating = int.parse(_ratingController.text.trim());
-    var postBody = {};
-    postBody['email'] = this.email;
-    postBody['password'] = this.password;
-    postBody['rating'] = rating;
-    postBody['post-id'] = this.currentPost.id;
-    API.updateRating(postBody).then((response) {
-      if (response.statusCode == 200) {
-        Map<String, dynamic> resultMap = json.decode(response.body);
-        if (resultMap["result"] == "success") {
-          //need to make another callout to fetch the post again to get the updated average rating.
-          API.getPost(this.currentPost.id).then((response) {
-            if (response.statusCode == 200) {
-              Map result = json.decode(response.body);
-              PostModel post = PostModel.fromJson(result['post']);
-              setState(() {
-                this.currentPost = post;
-                this.rating = post.ratingsAverage.toString();
-                _ratingController.text = "";
-              });
-            }
-          });
+    if (_formKey.currentState.validate()) {
+      final int rating = int.parse(_ratingController.text.trim());
+      var postBody = {};
+      postBody['email'] = this.email;
+      postBody['password'] = this.password;
+      postBody['rating'] = rating;
+      postBody['post-id'] = this.currentPost.id;
+      API.updateRating(postBody).then((response) {
+        if (response.statusCode == 200) {
+          Map<String, dynamic> resultMap = json.decode(response.body);
+          if (resultMap["result"] == "success") {
+            //need to make another callout to fetch the post again to get the updated average rating.
+            API.getPost(this.currentPost.id).then((response) {
+              if (response.statusCode == 200) {
+                Map result = json.decode(response.body);
+                PostModel post = PostModel.fromJson(result['post']);
+                setState(() {
+                  this.currentPost = post;
+                  this.rating = post.ratingsAverage.toString();
+                  _ratingController.text = "";
+                });
+              }
+            });
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   Widget get _post {
@@ -297,11 +299,22 @@ class _State extends State<PostView> {
     ratings.add(Card(
         child: Padding(
       padding: EdgeInsets.all(8.0),
-      child: TextField(
-        maxLines: 1,
-        controller: _ratingController,
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration.collapsed(hintText: "Rate this image"),
+      // child:TextFormField(
+      //   maxLines: 1,
+      //   controller: _ratingController,
+      //   validator: _validateRating,
+      //   keyboardType: TextInputType.number,
+      //   decoration: InputDecoration.collapsed(hintText: "Rate this image"),
+      // ),
+      child: Form(
+        key: _formKey,
+        child: TextFormField(
+          maxLines: 1,
+          controller: _ratingController,
+          validator: _validateRating,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration.collapsed(hintText: "Rate this image"),
+        ),
       ),
     )));
     ratings.add(Container(
@@ -316,6 +329,14 @@ class _State extends State<PostView> {
           },
         )));
     return new Container(child: Column(children: ratings));
+  }
+
+  String _validateRating(value) {
+    int ratingVal = int.parse(value);
+    if (ratingVal > 5 || ratingVal < 1) {
+      return "Please enter the rating from 1 to 5 (inclusive)";
+    }
+    return null;
   }
 
   Widget get _comments {

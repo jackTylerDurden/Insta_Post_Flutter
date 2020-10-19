@@ -8,8 +8,6 @@ const baseUrl = 'https://bismarck.sdsu.edu/api/';
 
 class API {
   static Future<http.Response> authenticateUser(email, password) async {
-    print('email----->>>' + email);
-    print('password----->>>' + password);
     var url = baseUrl +
         "instapost-query/authenticate?email=" +
         email +
@@ -22,14 +20,11 @@ class API {
   static Future<http.Response> createNewUser(user) async {
     var url = baseUrl + "instapost-upload/newuser";
     var body = jsonEncode(user);
-    http.Response responseTemp = await http.post(url,
+    return await http.post(url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode(user));
-    print('resonse------>>>' + responseTemp.statusCode.toString());
-    print('resonse------>>>' + responseTemp.body.toString());
-    return null;
+        body: body);
   }
 
   static Future<http.Response> getHashTags(startIndex, endIndex) async {

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'API.dart';
+import 'PostViewOption.dart';
 
 class UserRegistration extends StatefulWidget {
   @override
@@ -14,18 +17,12 @@ class _State extends State<UserRegistration> {
   TextEditingController _passwordController = TextEditingController();
   final errorMessage = 'Please enter some value';
   final _formKey = GlobalKey<FormState>();
-  void showAlert(message) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(message),
-          );
-        });
-  }
 
   @override
   void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _nickNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     return super.dispose();
@@ -37,18 +34,44 @@ class _State extends State<UserRegistration> {
     var nickName = _nickNameController.text.trim();
     var email = _emailController.text.trim();
     var password = _passwordController.text.trim();
-    print('firstName------->>' + firstName);
-    print('lastName------->>' + lastName);
-    print('nickName------->>' + nickName);
-    print('email------->>' + email);
-    print('password------->>' + password);
     var user = {};
     user['firstname'] = firstName;
     user['lastname'] = lastName;
     user['nickname'] = nickName;
     user['email'] = email;
     user['password'] = password;
-    API.createNewUser(user);
+    API.createNewUser(user).then((response) {
+      if (response.statusCode == 200) {
+        Map<String, dynamic> resultMap = json.decode(response.body);
+        var message = "";
+        if (resultMap["result"] == "success") {
+          message = "Sign up successful";
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PostViewOption(
+                    email: email,
+                    password: password,
+                  ),
+                ));
+          });
+        } else {
+          message = "Sign up failed. Error messages - " + resultMap["errors"];
+          Future.delayed(Duration(seconds: 5), () {
+            Navigator.of(context).pop(true);
+          });
+        }
+
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text(message),
+              );
+            });
+      }
+    });
     return null;
   }
 

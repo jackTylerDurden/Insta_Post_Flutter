@@ -118,7 +118,7 @@ class _State extends State<NewPost> {
     });
   }
 
-  getImage() async {
+  getImageFromGallery() async {
     // ignore: deprecated_member_use
     File image = await ImagePicker
         // ignore: deprecated_member_use
@@ -129,82 +129,112 @@ class _State extends State<NewPost> {
     });
   }
 
+  getImageFromCamera() async {
+    // ignore: deprecated_member_use
+    File image = await ImagePicker.pickImage(
+        source: ImageSource.camera, imageQuality: 50);
+
+    setState(() {
+      _imageFile = image;
+    });
+  }
+
+  Widget uploadImageActions() {}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(''),
-      ),
-      body: Padding(
-          padding: EdgeInsets.all(10),
-          child: ListView(
-            children: <Widget>[
-              Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    'InstaPost',
-                    style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 30),
-                  )),
-              Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    'New Post',
-                    style: TextStyle(fontSize: 20),
-                  )),
-              Center(
-                child: _imageFile == null
-                    ? Text('No image selected.')
-                    : Image.file(_imageFile),
+        appBar: AppBar(
+          title: Text(''),
+        ),
+        body: Padding(
+            padding: EdgeInsets.all(10),
+            child: ListView(
+              children: <Widget>[
+                Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(10),
+                    child: Text(
+                      'InstaPost',
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 30),
+                    )),
+                Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(10),
+                    child: Text(
+                      'New Post',
+                      style: TextStyle(fontSize: 20),
+                    )),
+                Center(
+                  child: _imageFile == null
+                      ? Text('No image selected.')
+                      : Image.file(_imageFile),
+                ),
+                Card(
+                    child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: HashTagTextField(
+                            maxLines: 8,
+                            maxLength: 144,
+                            controller: _postController,
+                            decoratedStyle:
+                                TextStyle(fontSize: 14, color: Colors.blue),
+                            basicStyle:
+                                TextStyle(fontSize: 14, color: Colors.black),
+                            decoration: InputDecoration.collapsed(
+                              hintText: "What's on your mind ?",
+                            )))),
+                Container(
+                    height: 50,
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: RaisedButton(
+                      textColor: Colors.white,
+                      color: Colors.blue,
+                      child: Text('Share'),
+                      onPressed: () {
+                        addPost();
+                      },
+                    ))
+              ],
+            )),
+        floatingActionButton: Stack(
+          children: <Widget>[
+            Positioned(
+              bottom: 80.0,
+              right: 10.0,
+              child: FloatingActionButton(
+                heroTag: 'gallery',
+                onPressed: getImageFromGallery,
+                tooltip: 'Pick an image from gallery',
+                child: Icon(Icons.photo_library),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
               ),
-              // Card(
-              //     child: Padding(
-              //   padding: EdgeInsets.all(8.0),
-              //   child: TextField(
-              //     maxLines: 8,
-              //     maxLength: 144,
-              //     controller: _postController,
-              //     decoration: InputDecoration.collapsed(
-              //         hintText: "What's on your mind ?"),
-              //   ),
-              // )),
-              Card(
-                  child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: HashTagTextField(
-                          maxLines: 8,
-                          maxLength: 144,
-                          controller: _postController,
-                          decoratedStyle:
-                              TextStyle(fontSize: 14, color: Colors.blue),
-                          basicStyle:
-                              TextStyle(fontSize: 14, color: Colors.black),
-                          decoration: InputDecoration.collapsed(
-                            hintText: "What's on your mind ?",
-                          )))),
-              Container(
-                  height: 50,
-                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: RaisedButton(
-                    textColor: Colors.white,
-                    color: Colors.blue,
-                    child: Text('Share'),
-                    onPressed: () {
-                      addPost();
-                    },
-                  ))
-            ],
-          )),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.red,
-        onPressed: getImage,
-        tooltip: 'Pick Video from gallery',
-        child: const Icon(Icons.photo_library),
-      ),
-    );
+            ),
+            Positioned(
+              bottom: 10.0,
+              right: 10.0,
+              child: FloatingActionButton(
+                heroTag: 'camera',
+                onPressed: getImageFromCamera,
+                tooltip: 'Capture an image from camera',
+                child: Icon(Icons.add_a_photo),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+            ),
+          ],
+        )
+        // floatingActionButton: FloatingActionButton(
+        //   backgroundColor: Colors.red,
+        //   onPressed: getImage,
+        //   tooltip: 'Pick Video from gallery',
+        //   child: const Icon(Icons.photo_library),
+        // ),
+        );
   }
 }

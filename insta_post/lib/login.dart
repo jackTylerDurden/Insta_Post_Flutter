@@ -1,3 +1,5 @@
+import 'package:insta_post/UserRegistration.dart';
+
 import 'HttpOverride.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -18,20 +20,6 @@ class _State extends State<Login> {
   String password;
   final errorMessage = 'Please enter some value';
   final _formKey = GlobalKey<FormState>();
-  void showAlertAndRedirect(message, success) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          if (!success) {
-            Future.delayed(Duration(seconds: 2), () {
-              Navigator.of(context).pop(true);
-            });
-          }
-          return AlertDialog(
-            title: Text(message),
-          );
-        });
-  }
 
   @override
   void dispose() {
@@ -44,22 +32,34 @@ class _State extends State<Login> {
     this.email = _emailController.text.trim();
     this.password = _passwordController.text.trim();
     API.authenticateUser(email, password).then((response) {
+      var message = "";
       if (response.statusCode == 200) {
         Map<String, dynamic> resultMap = json.decode(response.body);
         if (resultMap['result'] == true) {
-          showAlertAndRedirect('Login Successful!', true);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PostViewOption(
-                  email: this.email,
-                  password: this.password,
-                ),
-              ));
+          message = "Login Successful!";
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PostViewOption(
+                    email: this.email,
+                    password: this.password,
+                  ),
+                ));
+          });
         } else {
-          showAlertAndRedirect(
-              'Login Successful. Incorrect email or password', false);
+          message = "Login Successful. Incorrect email or password";
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.of(context).pop(true);
+          });
         }
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text(message),
+              );
+            });
       }
     });
     return null;
@@ -154,7 +154,12 @@ class _State extends State<Login> {
                       ),
                       onPressed: () {
                         //signup screen
-                        Navigator.pushNamed(context, '/userReg');
+                        // Navigator.pushNamed(context, '/userReg');
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UserRegistration(),
+                            ));
                       },
                     )
                   ],

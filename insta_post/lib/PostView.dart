@@ -38,13 +38,18 @@ class _State extends State<PostView> {
   String password;
   Map<String, PostModel> postsMap = new Map();
   PostModel currentPost = new PostModel();
+
   int currentPostIndex;
   String postText = "";
   List comments = [];
+  String rating = "";
+  String hashTags = "";
   Image postImage = Image.asset("assets/loading.gif");
+
   _State(this.postIdList, this.parentString, this.parentType, this.email,
       this.password);
   TextEditingController _commentController = TextEditingController();
+  TextEditingController _ratingController = TextEditingController();
   final errorMessage = 'Please enter some value';
   final _formKey = GlobalKey<FormState>();
   void showAlert(message) {
@@ -60,6 +65,7 @@ class _State extends State<PostView> {
   @override
   void dispose() {
     _commentController.dispose();
+    _ratingController.dispose();
     return super.dispose();
   }
 
@@ -91,7 +97,9 @@ class _State extends State<PostView> {
             this.postsMap[postId.toString()] = post;
             this.currentPost = post;
             this.postText = this.currentPost.text;
+            this.postText += this.currentPost.hashtags.join("");
             this.comments = this.currentPost.comments;
+            this.rating = this.currentPost.ratingsAverage.toString();
           });
           if (this.currentPost.image != -1) {
             API.getImage(this.currentPost.image).then((response) {
@@ -131,27 +139,33 @@ class _State extends State<PostView> {
         body: Padding(
             padding: EdgeInsets.all(10),
             child: ListView(
-              children: <Widget>[
-                Container(
-                    alignment: Alignment.topLeft,
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      this.parentString,
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20),
-                    )),
-                Container(
-                    alignment: Alignment.topLeft,
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      this.postIdList.length.toString() + ' posts',
-                      style: TextStyle(fontSize: 15),
-                    )),
-                _post
-              ],
+              children: [_post],
             )));
+    // body: Padding(
+    //     padding: EdgeInsets.all(10),
+    //     child: ListView(
+    //       // crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: <Widget>[
+    //         Container(
+    //             alignment: Alignment.topLeft,
+    //             padding: EdgeInsets.all(10),
+    //             child: Text(
+    //               this.parentString,
+    //               style: TextStyle(
+    //                   color: Colors.blue,
+    //                   fontWeight: FontWeight.bold,
+    //                   fontSize: 20),
+    //             )),
+    //         Container(
+    //             alignment: Alignment.topLeft,
+    //             padding: EdgeInsets.all(10),
+    //             child: Text(
+    //               this.postIdList.length.toString() + ' posts',
+    //               style: TextStyle(fontSize: 15),
+    //             )),
+    //         _post
+    //       ],
+    //     )));
   }
 
   addComment() {
@@ -162,25 +176,54 @@ class _State extends State<PostView> {
     postBody['comment'] = commentText;
     postBody['post-id'] = this.currentPost.id;
     API.addComment(postBody).then((response) {
-      setState(() {
-        comments.insert(0, commentText);
-        _commentController.text = "";
-      });
+      print('response.body--------->>>' + response.body);
+      print('response.statusCode--------->>>' + response.statusCode.toString());
+      if (response.statusCode == 200) {
+        Map<String, dynamic> resultMap = json.decode(response.body);
+        if (resultMap["result"] == "success") {
+          setState(() {
+            comments.insert(0, commentText);
+            _commentController.text = "";
+          });
+        }
+      }
+    });
+  }
+
+  submitRating() {
+    final int rating = int.parse(_ratingController.text.trim());
+    var postBody = {};
+    postBody['email'] = this.email;
+    postBody['password'] = this.password;
+    postBody['rating'] = rating;
+    postBody['post-id'] = this.currentPost.id;
+    API.updateRating(postBody).then((response) {
+      if (response.statusCode == 200) {
+        Map<String, dynamic> resultMap = json.decode(response.body);
+        if (resultMap["result"] == "success") {
+          //need to make another callout to fetch the post again to get the updated average rating.
+          API.getPost(this.currentPost.id).then((response) {
+            if (response.statusCode == 200) {
+              Map result = json.decode(response.body);
+              PostModel post = PostModel.fromJson(result['post']);
+              setState(() {
+                this.rating = post.ratingsAverage.toString();
+                _ratingController.text = "";
+              });
+            }
+          });
+        }
+      }
     });
   }
 
   Widget get _post {
     return Container(
         // alignment: Alignment.topLeft,
-        alignment: Alignment.topRight,
+        alignment: Alignment.centerLeft,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          // crossAxisAlignment: ,
           children: <Widget>[
-            Text(this.postText,
-                style: new TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18.0,
-                )),
             Divider(
               height: 20,
               color: Colors.lightBlue,
@@ -190,9 +233,54 @@ class _State extends State<PostView> {
               height: 20,
               color: Colors.lightBlue,
             ),
+            Text(this.postText,
+                textAlign: TextAlign.left,
+                style: new TextStyle(
+                  fontSize: 18.0,
+                )),
+            Divider(
+              height: 20,
+              color: Colors.lightBlue,
+            ),
+            _rating,
+            Divider(
+              height: 20,
+              color: Colors.lightBlue,
+            ),
             _comments,
           ],
         ));
+  }
+
+  Widget get _rating {
+    List<Widget> ratings = [];
+    ratings.add(Text(
+      "Average rating : " + this.rating,
+      textAlign: TextAlign.left,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+    ));
+    ratings.add(Card(
+        child: Padding(
+      padding: EdgeInsets.all(8.0),
+      child: TextField(
+        maxLines: 1,
+        controller: _ratingController,
+        decoration: InputDecoration.collapsed(hintText: "Rate this image"),
+      ),
+    )));
+    ratings.add(Container(
+        height: 50,
+        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: RaisedButton(
+          textColor: Colors.white,
+          color: Colors.blue,
+          child: Text('Submit your rating'),
+          onPressed: () {
+            submitRating();
+          },
+        )));
+    return new Container(child: Column(children: ratings));
   }
 
   Widget get _comments {

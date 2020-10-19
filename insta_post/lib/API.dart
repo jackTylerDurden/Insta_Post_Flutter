@@ -70,10 +70,49 @@ class API {
   static Future<http.Response> addComment(post) async {
     var url = baseUrl + "instapost-upload/comment";
     var body = jsonEncode(post);
+    print('body------->>>' + body);
+    url = urlEncode(text: url);
+    print('url------->>>' + url);
     return await http.post(url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode(body));
+        body: body);
+  }
+
+  static Future<http.Response> updateRating(post) async {
+    var url = baseUrl + "instapost-upload/rating";
+    var body = jsonEncode(post);
+    url = urlEncode(text: url);
+    print('url------->>>' + url);
+    return await http.post(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: body);
+  }
+
+  static Future<http.Response> createNewPost(post) async {
+    var url = baseUrl + "instapost-upload/post";
+    var body = jsonEncode(post);
+    url = urlEncode(text: url);
+    print('url------->>>' + url);
+    return await http.post(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: body);
+  }
+
+  static Future<http.Response> uploadImage(image) async {
+    var url = baseUrl + "instapost-upload/image";
+    var body = jsonEncode(image);
+    url = urlEncode(text: url);
+    print('url------->>>' + url);
+    return await http.post(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: body);
   }
 }

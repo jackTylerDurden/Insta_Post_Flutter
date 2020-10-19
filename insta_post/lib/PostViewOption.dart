@@ -3,6 +3,7 @@ import 'package:insta_post/Nicknames.dart';
 import 'API.dart';
 import 'HashTags.dart';
 import 'Nicknames.dart';
+import 'NewPost.dart';
 
 class PostViewOption extends StatefulWidget {
   final String email;
@@ -21,60 +22,74 @@ class _State extends State<PostViewOption> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(''),
-        ),
-        body: Padding(
-            padding: EdgeInsets.all(10),
-            child: ListView(
-              children: <Widget>[
-                Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      'InstaPost',
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 30),
-                    )),
-                Container(
-                    height: 50,
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    child: RaisedButton(
-                      textColor: Colors.white,
-                      color: Colors.blue,
-                      child: Text('View posts by nickname'),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Nicknames(
-                                email: this.email,
-                                password: this.password,
-                              ),
-                            ));
-                      },
-                    )),
-                Container(
-                    height: 75,
-                    padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
-                    child: RaisedButton(
-                      textColor: Colors.white,
-                      color: Colors.blue,
-                      child: Text('View posts by hashtags'),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HashTags(
-                                email: this.email,
-                                password: this.password,
-                              ),
-                            ));
-                      },
-                    ))
-              ],
-            )));
+      appBar: AppBar(
+        title: Text(''),
+      ),
+      body: Padding(
+          padding: EdgeInsets.all(10),
+          child: ListView(
+            children: <Widget>[
+              Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    'InstaPost',
+                    style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 30),
+                  )),
+              Container(
+                  height: 50,
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: RaisedButton(
+                    textColor: Colors.white,
+                    color: Colors.blue,
+                    child: Text('View posts by nickname'),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Nicknames(
+                              email: this.email,
+                              password: this.password,
+                            ),
+                          ));
+                    },
+                  )),
+              Container(
+                  height: 75,
+                  padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+                  child: RaisedButton(
+                    textColor: Colors.white,
+                    color: Colors.blue,
+                    child: Text('View posts by hashtags'),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HashTags(
+                              email: this.email,
+                              password: this.password,
+                            ),
+                          ));
+                    },
+                  ))
+            ],
+          )),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Add your onPressed code here!
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    NewPost(email: this.email, password: this.password),
+              ));
+        },
+        child: Icon(Icons.add_circle),
+        backgroundColor: Colors.lightBlue,
+      ),
+    );
   }
 }

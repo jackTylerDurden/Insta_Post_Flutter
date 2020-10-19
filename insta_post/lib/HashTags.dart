@@ -29,7 +29,7 @@ class _State extends State<HashTags> with SingleTickerProviderStateMixin {
   int _count = 0;
   int _column = 0;
   int _startIndex = 0;
-  int _pageSize = 10;
+  int _pageSize = 80;
   double _fontSize = 14;
   String email;
   String password;
@@ -59,12 +59,37 @@ class _State extends State<HashTags> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Hashtags'),
-        ),
-        body: Padding(
-            padding: EdgeInsets.all(10),
-            child: ListView(children: <Widget>[_tags1])));
+      appBar: AppBar(
+        title: Text('Hashtags'),
+      ),
+      body: Padding(
+          padding: EdgeInsets.all(10),
+          child: ListView(children: <Widget>[
+            _tags1,
+            Center(
+              child: IconButton(
+                icon: Icon(Icons.add_circle),
+                color: Colors.lightBlue,
+                tooltip: "for more hashtags",
+                onPressed: getMoreHashTags,
+              ),
+            )
+          ])),
+    );
+  }
+
+  getMoreHashTags() {
+    print('inside this function----------');
+    _startIndex += _pageSize;
+    API.getHashTags(_startIndex, _startIndex + _pageSize).then((response) {
+      if (response.statusCode == 200) {
+        Map<String, dynamic> resultMap = json.decode(response.body);
+        List<dynamic> hashTags = resultMap['hashtags'];
+        setState(() {
+          _items.addAll(hashTags.toList());
+        });
+      }
+    });
   }
 
   getPostIds(hashtag) {

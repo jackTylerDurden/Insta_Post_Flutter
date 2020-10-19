@@ -127,25 +127,19 @@ class _State extends State<PostView> {
   getNextPost() {
     if (this.currentPostIndex < this.postIdList.length - 1) {
       resetState();
-      this.currentPostIndex += 1;
-      print("this.currentPostIndex--------->>>" +
-          this.currentPostIndex.toString());
-      print("this.postIdList[this.currentPostIndex]--------->>>" +
-          this.postIdList[this.currentPostIndex].toString());
+      setState(() {
+        this.currentPostIndex += 1;
+      });
       fetchPost(this.postIdList[this.currentPostIndex]);
     }
   }
 
   getPrevPost() {
-    print("this.currentPostIndex before--------->>>" +
-        this.currentPostIndex.toString());
     if (this.currentPostIndex > 0) {
       resetState();
-      this.currentPostIndex -= 1;
-      print("this.currentPostIndex--------->>>" +
-          this.currentPostIndex.toString());
-      print("this.postIdList[this.currentPostIndex]--------->>>" +
-          this.postIdList[this.currentPostIndex].toString());
+      setState(() {
+        this.currentPostIndex -= 1;
+      });
       fetchPost(this.postIdList[this.currentPostIndex]);
     }
   }
@@ -163,12 +157,22 @@ class _State extends State<PostView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(this.parentType),
+        title: Text(this.parentString,
+            style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0)),
       ),
       body: Padding(
           padding: EdgeInsets.all(10),
           child: ListView(
-            children: [_post],
+            children: [
+              Text(
+                  "Post " +
+                      (this.currentPostIndex + 1).toString() +
+                      " of " +
+                      this.postIdList.length.toString(),
+                  style: new TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 15.0)),
+              _post
+            ],
           )),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -184,7 +188,7 @@ class _State extends State<PostView> {
             title: Text('Next Post'),
           ),
         ],
-        // currentIndex: 0,
+        currentIndex: 0,
         selectedItemColor: Colors.lightBlue,
         onTap: _onItemTapped,
       ),
@@ -299,13 +303,6 @@ class _State extends State<PostView> {
     ratings.add(Card(
         child: Padding(
       padding: EdgeInsets.all(8.0),
-      // child:TextFormField(
-      //   maxLines: 1,
-      //   controller: _ratingController,
-      //   validator: _validateRating,
-      //   keyboardType: TextInputType.number,
-      //   decoration: InputDecoration.collapsed(hintText: "Rate this image"),
-      // ),
       child: Form(
         key: _formKey,
         child: TextFormField(

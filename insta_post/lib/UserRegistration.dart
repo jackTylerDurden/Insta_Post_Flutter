@@ -58,7 +58,7 @@ class _State extends State<UserRegistration> {
           });
         } else {
           message = "Sign up failed. Error messages - " + resultMap["errors"];
-          Future.delayed(Duration(seconds: 5), () {
+          Future.delayed(Duration(seconds: 2), () {
             Navigator.of(context).pop(true);
           });
         }

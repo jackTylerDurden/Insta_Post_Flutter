@@ -36,7 +36,8 @@ class _State extends State<PostView> {
   String parentType;
   String email;
   String password;
-  Map<String, PostModel> postsMap = new Map();
+  // Map<String, PostModel> postsMap = new Map();
+  var postsMap = {};
   PostModel currentPost = new PostModel();
 
   int currentPostIndex;
@@ -85,6 +86,10 @@ class _State extends State<PostView> {
     if (this.postsMap[postId] != null) {
       setState(() {
         this.currentPost = this.postsMap[postId];
+        this.postText = this.currentPost.text;
+        this.postText += this.currentPost.hashtags.join("");
+        this.comments = this.currentPost.comments;
+        this.rating = this.currentPost.ratingsAverage.toString();
       });
     } else {
       API.getPost(postId).then((response) {
@@ -94,10 +99,9 @@ class _State extends State<PostView> {
           print('post------->>>' + post.text);
           setState(() {
             this.currentPostIndex = 0;
-            this.postsMap[postId.toString()] = post;
+            this.postsMap[postId] = post;
             this.currentPost = post;
             this.postText = this.currentPost.text;
-            this.postText += this.currentPost.hashtags.join("");
             this.comments = this.currentPost.comments;
             this.rating = this.currentPost.ratingsAverage.toString();
           });
@@ -110,6 +114,10 @@ class _State extends State<PostView> {
                 });
               }
             });
+          } else {
+            setState(() {
+              postImage = null;
+            });
           }
         }
       });
@@ -118,54 +126,78 @@ class _State extends State<PostView> {
 
   getNextPost() {
     if (this.currentPostIndex < this.postIdList.length - 1) {
-      this.currentPostIndex++;
+      resetState();
+      this.currentPostIndex += 1;
+      print("this.currentPostIndex--------->>>" +
+          this.currentPostIndex.toString());
+      print("this.postIdList[this.currentPostIndex]--------->>>" +
+          this.postIdList[this.currentPostIndex].toString());
       fetchPost(this.postIdList[this.currentPostIndex]);
     }
   }
 
   getPrevPost() {
+    print("this.currentPostIndex before--------->>>" +
+        this.currentPostIndex.toString());
     if (this.currentPostIndex > 0) {
-      this.currentPostIndex--;
+      resetState();
+      this.currentPostIndex -= 1;
+      print("this.currentPostIndex--------->>>" +
+          this.currentPostIndex.toString());
+      print("this.postIdList[this.currentPostIndex]--------->>>" +
+          this.postIdList[this.currentPostIndex].toString());
       fetchPost(this.postIdList[this.currentPostIndex]);
     }
+  }
+
+  resetState() {
+    setState(() {
+      this.currentPost = new PostModel();
+      this.postText = "";
+      this.comments = [];
+      this.rating = "0.0";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(this.parentType),
-        ),
-        body: Padding(
-            padding: EdgeInsets.all(10),
-            child: ListView(
-              children: [_post],
-            )));
-    // body: Padding(
-    //     padding: EdgeInsets.all(10),
-    //     child: ListView(
-    //       // crossAxisAlignment: CrossAxisAlignment.start,
-    //       children: <Widget>[
-    //         Container(
-    //             alignment: Alignment.topLeft,
-    //             padding: EdgeInsets.all(10),
-    //             child: Text(
-    //               this.parentString,
-    //               style: TextStyle(
-    //                   color: Colors.blue,
-    //                   fontWeight: FontWeight.bold,
-    //                   fontSize: 20),
-    //             )),
-    //         Container(
-    //             alignment: Alignment.topLeft,
-    //             padding: EdgeInsets.all(10),
-    //             child: Text(
-    //               this.postIdList.length.toString() + ' posts',
-    //               style: TextStyle(fontSize: 15),
-    //             )),
-    //         _post
-    //       ],
-    //     )));
+      appBar: AppBar(
+        title: Text(this.parentType),
+      ),
+      body: Padding(
+          padding: EdgeInsets.all(10),
+          child: ListView(
+            children: [_post],
+          )),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            backgroundColor: Colors.lightBlue,
+            icon: Icon(Icons.arrow_left, color: Colors.lightBlue),
+            title: Text('Previous Post'),
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: Colors.lightBlue,
+            icon: Icon(Icons.arrow_right, color: Colors.lightBlue),
+            title: Text('Next Post'),
+          ),
+        ],
+        // currentIndex: 0,
+        selectedItemColor: Colors.lightBlue,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  _onItemTapped(index) {
+    print('index---->>>' + index.toString());
+    if (index == 0) {
+      getPrevPost();
+    } else if (index == 1) {
+      getNextPost();
+    }
   }
 
   addComment() {
@@ -182,7 +214,7 @@ class _State extends State<PostView> {
         Map<String, dynamic> resultMap = json.decode(response.body);
         if (resultMap["result"] == "success") {
           setState(() {
-            comments.insert(0, commentText);
+            comments.add(commentText);
             _commentController.text = "";
           });
         }
@@ -207,6 +239,7 @@ class _State extends State<PostView> {
               Map result = json.decode(response.body);
               PostModel post = PostModel.fromJson(result['post']);
               setState(() {
+                this.currentPost = post;
                 this.rating = post.ratingsAverage.toString();
                 _ratingController.text = "";
               });
@@ -228,7 +261,8 @@ class _State extends State<PostView> {
               height: 20,
               color: Colors.lightBlue,
             ),
-            postImage,
+            // postImage,
+            postImage == null ? Text('') : postImage,
             Divider(
               height: 20,
               color: Colors.lightBlue,
@@ -266,6 +300,7 @@ class _State extends State<PostView> {
       child: TextField(
         maxLines: 1,
         controller: _ratingController,
+        keyboardType: TextInputType.number,
         decoration: InputDecoration.collapsed(hintText: "Rate this image"),
       ),
     )));
@@ -284,7 +319,7 @@ class _State extends State<PostView> {
   }
 
   Widget get _comments {
-    print('comments------------->>>' + this.currentPost.comments.toString());
+    // print('comments------------->>>' + this.currentPost.comments.toString());
 
     List<Widget> comments = [];
     comments.add(Text(
@@ -293,27 +328,6 @@ class _State extends State<PostView> {
       overflow: TextOverflow.ellipsis,
       style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
     ));
-    comments.add(Card(
-        child: Padding(
-      padding: EdgeInsets.all(8.0),
-      child: TextField(
-        maxLines: 3,
-        controller: _commentController,
-        decoration: InputDecoration.collapsed(hintText: "Write a comment..."),
-      ),
-    )));
-
-    comments.add(Container(
-        height: 50,
-        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-        child: RaisedButton(
-          textColor: Colors.white,
-          color: Colors.blue,
-          child: Text('Comment'),
-          onPressed: () {
-            addComment();
-          },
-        )));
     comments.add(Divider(
       height: 20,
       color: Colors.lightBlue,
@@ -326,6 +340,26 @@ class _State extends State<PostView> {
         style: TextStyle(fontSize: 15.0),
       ));
     }
+    comments.add(Card(
+        child: Padding(
+      padding: EdgeInsets.all(8.0),
+      child: TextField(
+        maxLines: 3,
+        controller: _commentController,
+        decoration: InputDecoration.collapsed(hintText: "Write a comment..."),
+      ),
+    )));
+    comments.add(Container(
+        height: 50,
+        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: RaisedButton(
+          textColor: Colors.white,
+          color: Colors.blue,
+          child: Text('Comment'),
+          onPressed: () {
+            addComment();
+          },
+        )));
     return new Container(
       alignment: Alignment.topLeft,
       child: Column(

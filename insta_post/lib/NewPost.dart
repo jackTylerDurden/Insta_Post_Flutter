@@ -1,3 +1,5 @@
+import 'package:hashtagable/hashtagable.dart';
+import 'package:hashtagable/widgets/hashtag_text_field.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'HttpOverride.dart';
@@ -52,12 +54,13 @@ class _State extends State<NewPost> {
 
   addPost() {
     final postText = _postController.text.trim();
-    var hashTagText = _hashtagController.text.trim();
-    var hashTags = hashTagText.split("#");
-    hashTags.removeAt(0);
-    for (int i = 0; i < hashTags.length; i++) {
-      hashTags[i] = "#" + hashTags[i];
-    }
+    final List<String> hashTags = extractHashTags(postText);
+    // var hashTagText = _hashtagController.text.trim();
+    // var hashTags = hashTagText.split("#");
+    // hashTags.removeAt(0);
+    // for (int i = 0; i < hashTags.length; i++) {
+    //   hashTags[i] = "#" + hashTags[i];
+    // }
     print('hashTags-------------------------->>' + hashTags.toString());
     var postBody = {};
     postBody["email"] = this.email;
@@ -158,28 +161,31 @@ class _State extends State<NewPost> {
                     ? Text('No image selected.')
                     : Image.file(_imageFile),
               ),
+              // Card(
+              //     child: Padding(
+              //   padding: EdgeInsets.all(8.0),
+              //   child: TextField(
+              //     maxLines: 8,
+              //     maxLength: 144,
+              //     controller: _postController,
+              //     decoration: InputDecoration.collapsed(
+              //         hintText: "What's on your mind ?"),
+              //   ),
+              // )),
               Card(
                   child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: TextField(
-                  maxLines: 8,
-                  maxLength: 144,
-                  controller: _postController,
-                  decoration: InputDecoration.collapsed(
-                      hintText: "What's on your mind ?"),
-                ),
-              )),
-              Card(
-                  child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: TextField(
-                  maxLines: 3,
-                  maxLength: 144,
-                  controller: _hashtagController,
-                  decoration: InputDecoration.collapsed(
-                      hintText: "Add your hashtags here"),
-                ),
-              )),
+                      padding: EdgeInsets.all(8.0),
+                      child: HashTagTextField(
+                          maxLines: 8,
+                          maxLength: 144,
+                          controller: _postController,
+                          decoratedStyle:
+                              TextStyle(fontSize: 14, color: Colors.blue),
+                          basicStyle:
+                              TextStyle(fontSize: 14, color: Colors.black),
+                          decoration: InputDecoration.collapsed(
+                            hintText: "What's on your mind ?",
+                          )))),
               Container(
                   height: 50,
                   padding: EdgeInsets.fromLTRB(10, 0, 10, 0),

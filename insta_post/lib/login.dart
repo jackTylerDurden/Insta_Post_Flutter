@@ -1,7 +1,5 @@
 import 'package:insta_post/UserRegistration.dart';
 
-import 'HttpOverride.dart';
-import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

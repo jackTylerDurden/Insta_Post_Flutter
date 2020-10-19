@@ -1,14 +1,11 @@
 import 'package:hashtagable/hashtagable.dart';
 import 'package:hashtagable/widgets/hashtag_text_field.dart';
 import 'package:image_picker/image_picker.dart';
-
-import 'HttpOverride.dart';
 import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'API.dart';
-import 'PostViewOption.dart';
 import "PostView.dart";
 
 class NewPost extends StatefulWidget {
@@ -24,15 +21,12 @@ class NewPost extends StatefulWidget {
 class _State extends State<NewPost> {
   _State(this.email, this.password);
   File _imageFile;
-  dynamic _pickImageError;
   var picker = ImagePicker();
   String imageSrc = "";
   TextEditingController _postController = TextEditingController();
-  TextEditingController _hashtagController = TextEditingController();
   String email;
   String password;
   final errorMessage = 'Please enter some value';
-  final _formKey = GlobalKey<FormState>();
   void showAlert(message) {
     showDialog(
         context: context,
@@ -139,7 +133,6 @@ class _State extends State<NewPost> {
     });
   }
 
-  Widget uploadImageActions() {}
   @override
   Widget build(BuildContext context) {
     return Scaffold(

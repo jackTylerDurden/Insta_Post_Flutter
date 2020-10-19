@@ -1,15 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// import 'package:flutter/services.dart';
 
 import 'package:flutter_tags/flutter_tags.dart';
 import 'API.dart';
 import 'PostView.dart';
 
 class HashTags extends StatefulWidget {
-  // HashTags({Key key, this.title}) : super(key: key);
-  // final String title;
   final String email;
   final String password;
   HashTags({Key key, @required this.email, @required this.password})
@@ -20,23 +17,12 @@ class HashTags extends StatefulWidget {
 }
 
 class _State extends State<HashTags> with SingleTickerProviderStateMixin {
-  bool _symmetry = false;
-  bool _removeButton = true;
-  bool _singleItem = false;
-  bool _startDirection = false;
-  bool _horizontalScroll = false;
-  bool _withSuggesttions = false;
-  int _count = 0;
-  int _column = 0;
   int _startIndex = 0;
   int _pageSize = 80;
   double _fontSize = 14;
   String email;
   String password;
-  // String title;
   _State(this.email, this.password);
-
-  String _itemCombine = 'withTextBefore';
 
   List _items = new List();
 
@@ -79,7 +65,6 @@ class _State extends State<HashTags> with SingleTickerProviderStateMixin {
   }
 
   getMoreHashTags() {
-    print('inside this function----------');
     _startIndex += _pageSize;
     API.getHashTags(_startIndex, _startIndex + _pageSize).then((response) {
       if (response.statusCode == 200) {
@@ -114,11 +99,9 @@ class _State extends State<HashTags> with SingleTickerProviderStateMixin {
   Widget get _tags1 {
     return Tags(
       key: _tagStateKey,
-      symmetry: _symmetry,
-      columns: _column,
-      horizontalScroll: _horizontalScroll,
-      //verticalDirection: VerticalDirection.up, textDirection: TextDirection.rtl,
-      heightHorizontalScroll: 60 * (_fontSize / 14),
+      symmetry: false,
+      columns: 0,
+      horizontalScroll: false,
       itemCount: _items.length,
       itemBuilder: (index) {
         final item = _items[index];

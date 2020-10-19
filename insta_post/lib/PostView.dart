@@ -1,9 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:flutter/services.dart';
 
-import 'HttpOverride.dart';
-import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -40,7 +36,7 @@ class _State extends State<PostView> {
   var postsMap = {};
   PostModel currentPost = new PostModel();
 
-  int currentPostIndex;
+  int currentPostIndex = 0;
   String postText = "";
   List comments = [];
   String rating = "";
@@ -73,13 +69,12 @@ class _State extends State<PostView> {
   @override
   void initState() {
     super.initState();
-    print('postId[0]----------->>>' + this.postIdList[0].toString());
-    print('parentString----------->>>' + this.parentString.toString());
-    print('parentType----------->>>' + this.parentType.toString());
-    fetchPost(this.postIdList[0]);
-    setState(() {
-      postImage = Image.asset("assets/loading.gif");
-    });
+    if (this.postIdList.length > 0) {
+      fetchPost(this.postIdList[0]);
+      setState(() {
+        postImage = Image.asset("assets/loading.gif");
+      });
+    }
   }
 
   fetchPost(postId) {
@@ -96,7 +91,6 @@ class _State extends State<PostView> {
         if (response.statusCode == 200) {
           Map result = json.decode(response.body);
           PostModel post = PostModel.fromJson(result['post']);
-          print('post------->>>' + post.text);
           setState(() {
             this.currentPostIndex = 0;
             this.postsMap[postId] = post;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:insta_post/Nicknames.dart';
-import 'API.dart';
 import 'HashTags.dart';
 import 'Nicknames.dart';
 import 'NewPost.dart';

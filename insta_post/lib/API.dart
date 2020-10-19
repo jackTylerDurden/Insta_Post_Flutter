@@ -50,6 +50,14 @@ class API {
     return await http.get(url);
   }
 
+  static Future<http.Response> getPostIdsFromNickname(nickname) async {
+    // hashtag = encode(hashtag);
+    var url =
+        baseUrl + "instapost-query/nickname-post-ids?nickname=" + nickname;
+    url = urlEncode(text: url);
+    return await http.get(url);
+  }
+
   static Future<http.Response> getPost(postId) async {
     var url = baseUrl + 'instapost-query/post?post-id=' + postId.toString();
     url = urlEncode(text: url);
